@@ -44,10 +44,16 @@ class DiscussChannel(models.Model):
             if not channel.is_messenger_channel:
                 continue
 
-            author_id = kwargs.get("author_id")
-            if not author_id and message and getattr(message, "author_id", False):
-                author_id = message.author_id.id
+            # Prefer author_id from the created message record (covers UI posts
+            # where author_id is not passed explicitly in kwargs but is resolved
+            # by Odoo internally inside message_post → _message_compute_author).
+            author_id = (
+                message.author_id.id
+                if message and getattr(message, "author_id", False)
+                else kwargs.get("author_id")
+            )
 
+            # Skip echoing messages that originated from Facebook (posted by OdooBot/root partner).
             if root_partner_id and author_id == root_partner_id:
                 continue
 
@@ -76,13 +82,16 @@ class DiscussChannel(models.Model):
         url = f"https://graph.facebook.com/v21.0/me/messages?access_token={token}"
         payload = {
             "recipient": {"id": self.messenger_psid},
-            "messaging_type": "MESSAGE_TAG",
-            "tag": "HUMAN_AGENT",
+            "messaging_type": "RESPONSE",
             "message": {"text": text},
         }
 
         try:
             response = requests.post(url, json=payload, timeout=15)
+            _logger.info(
+                "Messenger send result — channel %s, PSID %s, HTTP %s",
+                self.id, self.messenger_psid, response.status_code,
+            )
             response.raise_for_status()
         except requests.RequestException:
             _logger.exception(
@@ -90,6 +99,7 @@ class DiscussChannel(models.Model):
                 self.id,
                 self.messenger_psid,
             )
+
 
     def get_messenger_sidebar_threads(self):
         channels = self.search(
