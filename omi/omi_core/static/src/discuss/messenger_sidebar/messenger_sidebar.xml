@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="omi_core.DiscussSidebarMessenger">
+        <div class="o-om-messenger-sidebar d-flex flex-column flex-grow-0 mt-2 px-2">
+            <t t-if="store.discuss.isSidebarCompact">
+                <Dropdown state="floating" position="'right-start'" menuClass="'o-mail-DiscussSidebar-floatingMenu bg-100 border border-secondary p-2 mx-2 my-0 min-w-0 shadow-sm'" manual="true">
+                    <t t-call="omi_core.DiscussSidebarMessenger.header"/>
+                    <t t-set-slot="content">
+                        <div t-ref="floating" class="overflow-hidden">
+                            <span class="fw-bold text-uppercase o-xsmaller user-select-none text-muted">Messenger</span>
+                            <div t-if="state.loading" class="text-muted small mt-2">Loading conversations…</div>
+                            <div t-else="" t-if="!hasItems" class="text-muted small mt-2">No Messenger conversations</div>
+                            <t t-foreach="state.items" t-as="item" t-key="item.id">
+                                <MessengerThreadItem thread="item" onOpen="openThread"/>
+                            </t>
+                        </div>
+                    </t>
+                </Dropdown>
+            </t>
+            <t t-else="">
+                <t t-call="omi_core.DiscussSidebarMessenger.header"/>
+                <div t-if="state.loading" class="text-muted small px-1 pb-1">Loading conversations…</div>
+                <div t-elif="!hasItems" class="text-muted small px-1 pb-1">No Messenger conversations</div>
+                <t t-foreach="state.items" t-as="item" t-key="item.id">
+                    <MessengerThreadItem thread="item" onOpen="openThread"/>
+                </t>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="omi_core.DiscussSidebarMessenger.header">
+        <button class="o-mail-DiscussSidebar-item btn d-flex align-items-center px-0 border-0 rounded-2 fw-normal text-reset o-py-0_5 mb-0"
+            t-att-class="{ 'bg-inherit': !store.discuss.thread or store.discuss.thread.id !== undefined, 'justify-content-center position-relative o-compact': store.discuss.isSidebarCompact }"
+            t-on-click="refresh"
+        >
+            <i class="fa fa-facebook-messenger mx-2 text-primary"/>
+            <span t-if="!store.discuss.isSidebarCompact" class="small text-uppercase fw-bolder text-muted">Messenger</span>
+            <span t-if="state.loading" class="o-mail-DiscussSidebar-badge badge rounded-pill fw-bold ms-auto me-2">…</span>
+        </button>
+    </t>
+
+    <t t-name="omi_core.MessengerThreadItem">
+        <button class="o-mail-DiscussSidebar-item o-om-messenger-thread btn d-flex align-items-center px-0 border-0 rounded-2 fw-normal text-reset"
+            t-att-class="{
+                'o-active': isActive,
+                'bg-inherit': !isActive,
+                'o-unread': thread.unread_count,
+                'opacity-75': !thread.unread_count,
+                'justify-content-center position-relative o-compact': store.discuss.isSidebarCompact,
+                'o-py-0_5 mb-1': !store.discuss.isSidebarCompact,
+            }"
+            t-on-click="open"
+        >
+            <div class="d-flex align-items-center flex-grow-1 overflow-hidden" t-att-class="{ 'mx-2': !store.discuss.isSidebarCompact }">
+                <span class="o-om-messenger-avatar rounded-circle d-inline-flex align-items-center justify-content-center flex-shrink-0 me-2">
+                    <i class="fa fa-user"/>
+                </span>
+                <div class="flex-grow-1 text-start overflow-hidden">
+                    <div class="text-truncate fw-bolder" t-esc="thread.name"/>
+                    <div class="text-truncate small text-muted" t-esc="thread.preview || ('PSID: ' + thread.psid)"/>
+                </div>
+            </div>
+            <span t-if="thread.unread_count" class="o-mail-DiscussSidebar-badge badge rounded-pill fw-bold mx-1" t-esc="thread.unread_count"/>
+        </button>
+    </t>
+</templates>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_messenger" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.messenger</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="Meta Messenger Integration" name="omi_core" groups="base.group_system">
+                    <block title="Meta Messenger Integration">
+                        <setting string="Messenger Page Access Token" help="Token used for outbound messages to Meta Graph API.">
+                            <field name="messenger_page_access_token" password="True"/>
+                        </setting>
+                        <setting string="Messenger App Secret" help="App secret used to validate webhook signatures.">
+                            <field name="messenger_app_secret" password="True"/>
+                        </setting>
+                        <setting string="Messenger Verify Token" help="Token used during Meta webhook verification handshake.">
+                            <field name="messenger_verify_token" password="True"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>
