@@ -3,7 +3,7 @@
     "summary": "Handle Facebook Messenger chats directly from Odoo Discuss",
     "version": "18.0.1.0.0",
     "category": "Productivity",
-    "author": "Your Company",
+    "author": "Prabin Bhattarai",
     "license": "LGPL-3",
     "depends": ["base", "mail"],
     "data": [
