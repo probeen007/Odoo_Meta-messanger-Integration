@@ -1,31 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
     <t t-name="omi_core.DiscussSidebarMessenger">
-        <div class="o-om-messenger-sidebar d-flex flex-column flex-grow-0 mt-2 px-2">
-            <t t-if="store.discuss.isSidebarCompact">
-                <Dropdown state="floating" position="'right-start'" menuClass="'o-mail-DiscussSidebar-floatingMenu bg-100 border border-secondary p-2 mx-2 my-0 min-w-0 shadow-sm'" manual="true">
-                    <t t-call="omi_core.DiscussSidebarMessenger.header"/>
-                    <t t-set-slot="content">
-                        <div t-ref="floating" class="overflow-hidden">
-                            <span class="fw-bold text-uppercase o-xsmaller user-select-none text-muted">Messenger</span>
-                            <div t-if="state.loading" class="text-muted small mt-2">Loading conversations…</div>
-                            <div t-else="" t-if="!hasItems" class="text-muted small mt-2">No Messenger conversations</div>
-                            <t t-foreach="state.items" t-as="item" t-key="item.id">
-                                <MessengerThreadItem thread="item" onOpen="openThread"/>
-                            </t>
-                        </div>
-                    </t>
-                </Dropdown>
-            </t>
-            <t t-else="">
-                <t t-call="omi_core.DiscussSidebarMessenger.header"/>
-                <div t-if="state.loading" class="text-muted small px-1 pb-1">Loading conversations…</div>
-                <div t-elif="!hasItems" class="text-muted small px-1 pb-1">No Messenger conversations</div>
-                <t t-foreach="state.items" t-as="item" t-key="item.id">
-                    <MessengerThreadItem thread="item" onOpen="openThread"/>
+        <t t-if="state.isActiveCompany">
+            <div class="o-om-messenger-sidebar d-flex flex-column flex-grow-0 mt-2 px-2">
+                <t t-if="store.discuss.isSidebarCompact">
+                    <Dropdown state="floating" position="'right-start'" menuClass="'o-mail-DiscussSidebar-floatingMenu bg-100 border border-secondary p-2 mx-2 my-0 min-w-0 shadow-sm'" manual="true">
+                        <t t-call="omi_core.DiscussSidebarMessenger.header"/>
+                        <t t-set-slot="content">
+                            <div t-ref="floating" class="overflow-hidden">
+                                <span class="fw-bold text-uppercase o-xsmaller user-select-none text-muted">Messenger</span>
+                                <div t-if="state.loading" class="text-muted small mt-2">Loading conversations…</div>
+                                <div t-else="" t-if="!hasItems" class="text-muted small mt-2">No Messenger conversations</div>
+                                <t t-foreach="threads" t-as="thread" t-key="thread.localId">
+                                    <MessengerThreadItem thread="thread" onOpen="openThread"/>
+                                </t>
+                            </div>
+                        </t>
+                    </Dropdown>
                 </t>
-            </t>
-        </div>
+                <t t-else="">
+                    <t t-call="omi_core.DiscussSidebarMessenger.header"/>
+                    <div t-if="state.loading" class="text-muted small px-1 pb-1">Loading conversations…</div>
+                    <div t-elif="!hasItems" class="text-muted small px-1 pb-1">No Messenger conversations</div>
+                    <t t-foreach="threads" t-as="thread" t-key="thread.localId">
+                        <MessengerThreadItem thread="thread" onOpen="openThread"/>
+                    </t>
+                </t>
+            </div>
+        </t>
     </t>
 
     <t t-name="omi_core.DiscussSidebarMessenger.header">
@@ -44,8 +46,8 @@
             t-att-class="{
                 'o-active': isActive,
                 'bg-inherit': !isActive,
-                'o-unread': thread.unread_count,
-                'opacity-75': !thread.unread_count,
+                'o-unread': thread.selfMember?.message_unread_counter > 0,
+                'opacity-75': !(thread.selfMember?.message_unread_counter > 0),
                 'justify-content-center position-relative o-compact': store.discuss.isSidebarCompact,
                 'o-py-0_5 mb-1': !store.discuss.isSidebarCompact,
             }"
@@ -56,11 +58,11 @@
                     <i class="fa fa-user"/>
                 </span>
                 <div class="flex-grow-1 text-start overflow-hidden">
-                    <div class="text-truncate fw-bolder" t-esc="thread.name"/>
-                    <div class="text-truncate small text-muted" t-esc="thread.preview || ('PSID: ' + thread.psid)"/>
+                    <div class="text-truncate fw-bolder" t-esc="thread.displayName"/>
+                    <div class="text-truncate small text-muted" t-esc="thread.preview || ('PSID: ' + thread.messenger_psid)"/>
                 </div>
             </div>
-            <span t-if="thread.unread_count" class="o-mail-DiscussSidebar-badge badge rounded-pill fw-bold mx-1" t-esc="thread.unread_count"/>
+            <span t-if="thread.selfMember?.message_unread_counter > 0" class="o-mail-DiscussSidebar-badge badge rounded-pill fw-bold mx-1" t-esc="thread.selfMember.message_unread_counter"/>
         </button>
     </t>
 </templates>

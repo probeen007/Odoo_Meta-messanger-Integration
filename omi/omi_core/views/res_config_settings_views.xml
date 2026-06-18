@@ -8,15 +8,28 @@
             <xpath expr="//form" position="inside">
                 <app string="Meta Messenger Integration" name="omi_core" groups="base.group_system">
                     <block title="Meta Messenger Integration">
-                        <setting string="Messenger Page Access Token" help="Token used for outbound messages to Meta Graph API.">
-                            <field name="messenger_page_access_token" password="True"/>
+                        <setting string="Enable Messenger Integration"
+                                 help="Activate Facebook Messenger integration for the current company.">
+                            <field name="messenger_active"/>
                         </setting>
-                        <setting string="Messenger App Secret" help="App secret used to validate webhook signatures.">
-                            <field name="messenger_app_secret" password="True"/>
-                        </setting>
-                        <setting string="Messenger Verify Token" help="Token used during Meta webhook verification handshake.">
-                            <field name="messenger_verify_token" password="True"/>
-                        </setting>
+                        <div invisible="not messenger_active">
+                            <setting string="Page Access Token"
+                                     help="Token used for outbound messages to Meta Graph API.">
+                                <field name="messenger_page_access_token" password="True"/>
+                            </setting>
+                            <setting string="App Secret"
+                                     help="App secret used to validate incoming webhook signatures.">
+                                <field name="messenger_app_secret" password="True"/>
+                            </setting>
+                            <setting string="Verify Token"
+                                     help="Token used during Meta webhook verification handshake.">
+                                <field name="messenger_verify_token" password="True"/>
+                            </setting>
+                             <setting string="Page ID"
+                                      help="Facebook Page ID (automatically fetched or entered manually).">
+                                 <field name="messenger_page_id"/>
+                             </setting>
+                        </div>
                     </block>
                 </app>
             </xpath>

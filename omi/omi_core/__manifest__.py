@@ -14,6 +14,7 @@
             "omi_core/static/src/discuss/messenger_sidebar/messenger_sidebar.js",
             "omi_core/static/src/discuss/messenger_sidebar/messenger_sidebar.xml",
             "omi_core/static/src/discuss/messenger_sidebar/messenger_sidebar.scss",
+            "omi_core/static/src/discuss/messenger_sidebar/messenger_dm_filter.js",
         ],
     },
     "installable": True,

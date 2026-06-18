@@ -44,17 +44,20 @@ export class DiscussSidebarMessenger extends Component {
         super.setup();
         this.store = useState(useService("mail.store"));
         this.orm = useService("orm");
+        this.companyService = useService("company");
         this.floating = useDropdownState();
         this.state = useState({
             loading: false,
-            items: [],
+            isActiveCompany: false,
         });
         this.refresh = this.refresh.bind(this);
         this.openThread = this.openThread.bind(this);
         this.refreshTimer = null;
         onWillStart(async () => {
             await this.refresh();
-            this.refreshTimer = setInterval(() => this.refresh(), 15000);
+            if (this.state.isActiveCompany) {
+                this.refreshTimer = setInterval(() => this.refresh(), 15000);
+            }
         });
         onWillDestroy(() => {
             if (this.refreshTimer) {
@@ -63,25 +66,37 @@ export class DiscussSidebarMessenger extends Component {
         });
     }
 
+    get threads() {
+        const currentCompanyId = this.companyService.currentCompany.id;
+        return Object.values(this.store.Thread.records)
+            .filter(thread => thread.is_messenger_channel && thread.messenger_company_id === currentCompanyId)
+            .sort((t1, t2) => {
+                return (t2.lastInterestDt || t2.id) - (t1.lastInterestDt || t1.id);
+            });
+    }
+
     get hasItems() {
-        return this.state.items.length > 0;
+        return this.threads.length > 0;
     }
 
     async refresh() {
         this.state.loading = true;
         try {
-            this.state.items = await this.orm.call(
+            const result = await this.orm.call(
                 "discuss.channel",
                 "get_messenger_sidebar_threads",
                 [[]]
             );
+            this.state.isActiveCompany = result.is_active;
+            if (result.is_active) {
+                this.store.insert(result.store_data);
+            }
         } finally {
             this.state.loading = false;
         }
     }
 
-    async openThread(threadData) {
-        const thread = await this.store.Thread.getOrFetch({ model: "discuss.channel", id: threadData.id });
+    async openThread(thread) {
         if (thread) {
             thread.setAsDiscussThread();
         }
